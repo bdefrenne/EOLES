@@ -41,8 +41,8 @@ model.storage = Var(((storage, hour) for storage in model.storages for hour in m
 model.reserve = Var(((reserve, hour) for reserve in model.frr for hour in model.time), within=NonNegativeReals, initialize=0)
 
 
-def generation_vre_constraint_rule(model, t, tec):
-    return model.generation[tec, t] == model.capacities[tec] * production_profile[tec][t]
+def generation_vre_constraint_rule(model, time, tec):
+    return model.generation[tec, t] = model.capacities[tec] * production_profile[tec][t]
 
 model.generation_vre_constraint = Constraint(model.time, model.vre, rule=generation_vre_constraint_rule)
 
