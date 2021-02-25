@@ -43,7 +43,7 @@ def main():
     eta_out = {'phs': 0.9, 'battery': 0.95, 'methanation': 0.45}
     pump_capa = 9.3
     max_phs = 0.18
-    max_biogas = 15
+    max_biogas = 15 * 1000
     load_uncertainty = 0.01
     delta = 0.1
 
@@ -144,7 +144,10 @@ def main():
     # biogas_const..                   sum(h,GENE('biogas',h)) =l=     max_biogas*1000;
 
     def biogas_constraint_rule(model):
-        return sum(model.generation['biogas', hour] for hour in model.time) <= max_biogas * 1000
+        fact = 24 * 365 / len(model.time)
+        gen_year_biogas = sum(model.generation['biogas', hour]
+                              for hour in model.time) * fact
+        return gen_year_biogas <= max_biogas
 
     # reserves(h)..                    sum(frr, RSV(frr,h))    =e=     sum(vre,epsilon(vre)*CAPA(vre))+ demand(h)*load_uncertainty*(1+delta);
 
@@ -200,7 +203,7 @@ def main():
         model.storages, rule=storage_capacity_2_constraint_rule)
     print('Defining biogas')
     model.biogas_constraint = Constraint(
-        model.time, rule=biogas_constraint_rule)
+        rule=biogas_constraint_rule)
     print('Defining reserves')
     model.reserves_constraint = Constraint(
         model.time, rule=reserves_constraint_rule)
